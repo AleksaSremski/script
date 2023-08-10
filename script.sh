@@ -9,6 +9,7 @@ export TERM=ansi
 packages=(lf pass)
 Ipkgs=(curl git ntp base-devel)
 
+# KURAC
 #	Functions
 installpackage() {
 	pacman --noconfirm --needed -S "$1" >/dev/null 2>&1
@@ -25,6 +26,7 @@ error() {
 
 pacmansync() {
 	whiptail --infobox "Checking if your system is up to date..." 15 70
+	cp programs /tmp/
 	pacman --noconfirm -Syy >/dev/null 2>&1
 	refresh_keys
 	pacman --noconfirm -Syu >/dev/null 2>&1
@@ -34,12 +36,6 @@ installAURpackage() {
 	whiptail --title "Installation!" \
 		--infobox "Program \"$program\" is being installed. ($n:$total)\n$program: $desc." 15 70
 	sudo -u $username yay --noconfirm -S "$1" >/dev/null 2>&1
-#	whiptail --title "Installing package via yay" --yes-button "Yes, I agree" \
-#	--no-button "No, Fuck you!" \
-#	--yesno "DO YOU AGREE TO INSTALL '$1' PACKAGE?!" 15 60 || {
-#		clear
-#		exit 1
-#	}
 }
 
 welcomemsg() {
@@ -64,11 +60,12 @@ refresh_keys() {
 }
 
 getuserandpass() {
+# Get username
 	username=$(whiptail --title "Lets start with creating new user!" --inputbox "Please enter your username:" 10 60 3>&1 1>&2 2>&3 3>&1) || exit 1
 	while ! echo $username | grep -q "^[a-z_][a-z0-9_-]*$"; do
 		username=$(whiptail --title "Oh no!" --inputbox "Please enter valid username, so not numbers, special characthers or upper case letters:" 10 60 3>&1 1>&2 2>&3 3>&1) || exit 1
 	done
-
+# Get passwords
 	pass1=$(whiptail --title "Lets add password to the new user" --passwordbox "Please type your password:" 10 60 3>&1 1>&2 2>&3 3>&1) || exit 1
 	pass2=$(whiptail --title "Lets add password to the new user" --passwordbox "Please retype your password:" 10 60 3>&1 1>&2 2>&3 3>&1) || exit 1
 	# In case passwords do not match
@@ -87,8 +84,8 @@ usercheck() {
 
 adduserandpass() {
 	whiptail  --infobox "User '$username' is being created" 7 50
-	useradd -m -G wheel "$username" >/dev/null/ 2>&1 ||
-		usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
+	useradd -m -g wheel "$username" >/dev/null/ 2>&1 #||
+		#usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
 	echo "$name:$pass1" | chpasswd
 	unset	pass1 pass2
 	echo " %wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
@@ -103,7 +100,7 @@ yayinstall() {
 	cd /home/"$username"/.config
 	sudo -u "$username" git clone https://aur.archlinux.org/"$1".git >/dev/null 2>&1
 	cd "$1"
-	sudo -u "$username" makepkg --noconfirm -si >/dev/null 2>&1 || return 1
+	sudo -u "$username" makepkg --noconfirm -si PKGBUILD >/dev/null 2>&1 || return 1
 }
 
 installpkg() {
@@ -125,11 +122,6 @@ maininstall() {
 		"G") gitinstall "$program" "$desc" ;;
 		esac
 	done </tmp/programs
-	#	whiptail --title "Installation!" \
-	#	--infobox "Program \"$program\" is being installed. ($n:$total)\n$program: $desc." 15 70
-	#	#installpackage "$program"
-	#	pacman -Si "$program" | head -4 >> testic
-	#	echo "" >> testic
 }
 
 gitinstall() {
@@ -137,8 +129,9 @@ gitinstall() {
 	whiptail --title "Installation!" \
 	--infobox "Program \"$program\" is being installed. ($n:$total)\n$program: $desc." 15 70
 	cd "/home/"$username"/.config/"
-	sudo -u "$username" git clone https://github.com/AleksaSremski/"$program".git
+	sudo -u "$username" git clone https://github.com/AleksaSremski/"$program".git >/dev/null 2>&1
 	cd "$program"
+	make >/dev/null 2>&1
 	make install >/dev/null 2>&1
 	cd /tmp
 }
@@ -161,6 +154,7 @@ finalize() {
 
 
 ###	Start	###
+# KURAC
 
 # Pacman sync
 pacmansync || error "User exited"
@@ -221,6 +215,17 @@ finalize
 # 	removepackage "$pkgs"
 # done
 
+#	whiptail --title "Installing package via yay" --yes-button "Yes, I agree" \
+#	--no-button "No, Fuck you!" \
+#	--yesno "DO YOU AGREE TO INSTALL '$1' PACKAGE?!" 15 60 || {
+#		clear
+#		exit 1
+#	}
 
 
+#	whiptail --title "Installation!" \
+#	--infobox "Program \"$program\" is being installed. ($n:$total)\n$program: $desc." 15 70
+#	#installpackage "$program"
+#	pacman -Si "$program" | head -4 >> testic
+#	echo "" >> testic
 
