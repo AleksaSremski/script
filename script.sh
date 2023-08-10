@@ -53,7 +53,11 @@ welcomemsg() {
 		--no-button "Return..." \
 		--yesno "Be sure the computer you are using has current pacman updates and refreshed Arch keyrings.\\n\\nIf it does not, the installation of some programs might fail." 8 70 || {
 		clear
-		exit 1 } } preinstallmsg() {
+		exit 1
+	}
+ }
+
+ preinstallmsg() {
 	whiptail --title "Lets get started!" --yes-button "Yes, I agree." \
 		--no-button "No, exit script." \
 		--yesno "From this point whole script is goint to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 15 70 || {
@@ -91,7 +95,7 @@ usercheck() {
 
 adduserandpass() {
 	whiptail  --infobox "User '$username' is being created" 7 50
-	useradd -m -g wheel "$username" >/dev/null/ 2>&1 ||
+	useradd -m -g wheel -s /bin/bash "$username" >/dev/null/ 2>&1 ||
 		usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
 	export repodir="/home/$name/.local/src"
 	mkdir -p "$repodir"
@@ -99,7 +103,7 @@ adduserandpass() {
 	echo "$name:$pass1" | chpasswd
 	unset	pass1 pass2
 	echo " %wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
-	echo "	Defaults !tty_tickets" >> /etc/sudoers
+	echo " Defaults !tty_tickets" >> /etc/sudoers
 	mkdir /home/"$username"/.config && chown -R "$username":wheel /home/"$username"/.config
 
 }
