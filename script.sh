@@ -55,6 +55,15 @@ welcomemsg() {
 		--yesno "Be sure the computer you are using has current pacman updates and refreshed Arch keyrings.\\n\\nIf it does not, the installation of some programs might fail." 8 70
 }
 
+preinstallmsg() {
+	whiptai --title "Lets get started!" --yes-button "Yes, I agree." \
+		--no-button "No, exit script." \
+		--yesno "From this point hole script is goint to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 8 70 || {
+		clear
+		exit 1
+	}
+}
+
 refresh_keys() {
 	pacman --noconfirm -S archlinux-keyring >/dev/null 2>&1
 }
@@ -140,7 +149,7 @@ deploydotfiles() {
 	whiptail --title "Configuration of programs!" \
 	--infobox "Deploying my configurational files." 15 70
 	cd "/tmp"
-	git clone "$1"
+	git clone "$1" >/dev/null 2>&1
 	mv dotfiles/.config/* /home/"$username"/.config/ && rm -rf dotfiles/.config/
 	cp dotfiles/* /home/"$username"/ && chown -R "$username":wheel /home/"$username"/*
 }
@@ -161,6 +170,9 @@ pacmansync || error "User exited"
 
 # First Message
 welcomemsg || error "User exited."
+
+# Pre installation message
+preinstallmsg
 
 # Gets user name and password
 getuserandpass || error "User exited."
