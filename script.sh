@@ -6,7 +6,7 @@ dotfiles="https://github.com/AleksaSremski/dotfiles.git"
 export TERM=ansi
 
 #packages=(xorg-server xorg-xinit xorg-xrandr noto-fonts ttf-linux-libertine ttf-font-awesome xf86-video-intel libxft libxinerama git feh ffmpeg sxiv xwallpaper xcompmgr firefox mpd ncmpcpp mpc)
-packages=(lf pass)
+#packages=(lf pass)
 Ipkgs=(curl git ntp base-devel)
 
 # KURAC
@@ -44,21 +44,19 @@ welcomemsg() {
 
 	whiptail --title "Welcome!" --yes-button "Ok" \
 		--no-button "Return..." \
-		--yesno "This is script for installing my desktop enviroment 'DE' with my configurational files.\nIt's basically copy of Luke Smiths build of 'DE' with my personal configuration files.\n\n-Aleksa" 15 60 ||
-	{
+		--yesno "This is script for installing my desktop enviroment 'DE' with my configurational files.\nIt's basically copy of Luke Smiths build of 'DE' with my personal configuration files.\n\n-Aleksa" 15 60 || {
 		clear
 		exit 1
 	}
 
 	whiptail --title "Important Note!" --yes-button "All ready!" \
 		--no-button "Return..." \
-		--yesno "Be sure the computer you are using has current pacman updates and refreshed Arch keyrings.\\n\\nIf it does not, the installation of some programs might fail." 8 70
-}
-
-preinstallmsg() {
-	whiptai --title "Lets get started!" --yes-button "Yes, I agree." \
+		--yesno "Be sure the computer you are using has current pacman updates and refreshed Arch keyrings.\\n\\nIf it does not, the installation of some programs might fail." 8 70 || {
+		clear
+		exit 1 } } preinstallmsg() {
+	whiptail --title "Lets get started!" --yes-button "Yes, I agree." \
 		--no-button "No, exit script." \
-		--yesno "From this point hole script is goint to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 8 70 || {
+		--yesno "From this point whole script is goint to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 15 70 || {
 		clear
 		exit 1
 	}
@@ -93,8 +91,11 @@ usercheck() {
 
 adduserandpass() {
 	whiptail  --infobox "User '$username' is being created" 7 50
-	useradd -m -g wheel "$username" >/dev/null/ 2>&1 #||
-		#usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
+	useradd -m -g wheel "$username" >/dev/null/ 2>&1 ||
+		usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
+	export repodir="/home/$name/.local/src"
+	mkdir -p "$repodir"
+	chown -R "$name":wheel "$(dirname "$repodir")"
 	echo "$name:$pass1" | chpasswd
 	unset	pass1 pass2
 	echo " %wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
@@ -159,12 +160,8 @@ finalize() {
 	clear
 }
 
-#	UI
-
-
-###	Start	###
 # KURAC
-
+###	Start	 ###
 # Pacman sync
 pacmansync || error "User exited"
 
@@ -180,14 +177,14 @@ getuserandpass || error "User exited."
 # Checks if user already exists
 usercheck || error "User exited."
 
+# Creates user (with password and joins it in wheel group)
+adduserandpass || error "User and password creation aborted."
+
 # Installing very Important packages Ipkgs=(curl git ntp base-devel)
  for x in ${Ipkgs[@]}; do
  	whiptail --title "A few important things!" --infobox "Package \"$x\" is being installed." 12 60
  	installpackage "$x"
  done
-
-# Creates user (with password and joins it in wheel group)
-adduserandpass || error "User and password creation aborted."
 
 # Use all cores for compiling
 sed -i "s/-j2/-j$(nproc)/;/^#MAKEFLAGS/s/^#//" /etc/makepkg.conf
@@ -206,6 +203,8 @@ deploydotfiles "$dotfiles"
 
 # Final Message
 finalize
+
+
 
 # Installs package archlinux-keyring
 #	refresh_keys
@@ -233,7 +232,6 @@ finalize
 #		clear
 #		exit 1
 #	}
-
 
 #	whiptail --title "Installation!" \
 #	--infobox "Program \"$program\" is being installed. ($n:$total)\n$program: $desc." 15 70
