@@ -89,7 +89,7 @@ usercheck() {
 
 adduserandpass() {
 	whiptail  --infobox "User '$username' is being created" 7 50
-	useradd -m -g wheel -s /bin/bash "$username" >/dev/null/ 2>&1 ||
+	useradd -m -g wheel -s /bin/bash "$username" || #>/dev/null/ 2>&1 ||
 		usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
 	echo "$username:$pass1" | chpasswd
 	unset	pass1 pass2
