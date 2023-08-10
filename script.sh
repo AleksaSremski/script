@@ -3,13 +3,9 @@
 
 #	Variables
 dotfiles="https://github.com/AleksaSremski/dotfiles.git"
+Ipkgs=(curl git ntp base-devel)
 export TERM=ansi
 
-#packages=(xorg-server xorg-xinit xorg-xrandr noto-fonts ttf-linux-libertine ttf-font-awesome xf86-video-intel libxft libxinerama git feh ffmpeg sxiv xwallpaper xcompmgr firefox mpd ncmpcpp mpc)
-#packages=(lf pass)
-Ipkgs=(curl git ntp base-devel)
-
-# KURAC
 #	Functions
 installpackage() {
 	pacman --noconfirm --needed -S "$1" >/dev/null 2>&1
@@ -39,9 +35,7 @@ installAURpackage() {
 }
 
 welcomemsg() {
-#	First message
-# It's basically copy of Luke Smiths build of DE with my personal configuration files.\n\n-Aleksa" 15 60 ||
-
+# First message
 	whiptail --title "Welcome!" --yes-button "Ok" \
 		--no-button "Return..." \
 		--yesno "This is script for installing my desktop enviroment 'DE' with my configurational files.\nIt's basically copy of Luke Smiths build of 'DE' with my personal configuration files.\n\n-Aleksa" 15 60 || {
@@ -97,24 +91,21 @@ adduserandpass() {
 	whiptail  --infobox "User '$username' is being created" 7 50
 	useradd -m -g wheel -s /bin/bash "$username" >/dev/null/ 2>&1 ||
 		usermod -a -G wheel "$username" && mkdir -p /home/"$username" && chown "$username":wheel /home/"$username"
-	export repodir="/home/$name/.local/src"
-	mkdir -p "$repodir"
-	chown -R "$name":wheel "$(dirname "$repodir")"
-	echo "$name:$pass1" | chpasswd
+	echo "$username:$pass1" | chpasswd
 	unset	pass1 pass2
 	echo " %wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
 	echo " Defaults !tty_tickets" >> /etc/sudoers
 	mkdir /home/"$username"/.config && chown -R "$username":wheel /home/"$username"/.config
-
 }
 
 yayinstall() {
-	# Used only to install yay (which is needed to install other packages)
+# Used only to install yay (which is needed to install other packages)
 	whiptail --title "A few important things!" --infobox "Package \"$1\" is being installed." 12 60
 	cd /home/"$username"/.config
 	sudo -u "$username" git clone https://aur.archlinux.org/"$1".git >/dev/null 2>&1
 	cd "$1"
-	sudo -u "$username" makepkg --noconfirm -si PKGBUILD >/dev/null 2>&1 || return 1
+	sudo -u "$username" -D /home/"$username"/.config/"$1" \
+		makepkg --noconfirm -si >/dev/null 2>&1 || return 1
 }
 
 installpkg() {
@@ -160,29 +151,28 @@ deploydotfiles() {
 }
 
 finalize() {
-	whiptail --title "Installation complete!" --msgbox "Installation is complete, if anything is broken...\n\nLmao " 14 70
+	whiptail --title "Installation complete!" --msgbox "Installation has finished, you can login as new user.\n\nEnjoy!" 14 70
 	clear
 }
 
-# KURAC
-###	Start	 ###
+###	START	 ###
 # Pacman sync
-pacmansync || error "User exited"
+pacmansync
 
 # First Message
-welcomemsg || error "User exited."
+welcomemsg
 
 # Pre installation message
 preinstallmsg
 
 # Gets user name and password
-getuserandpass || error "User exited."
+getuserandpass
 
 # Checks if user already exists
-usercheck || error "User exited."
+usercheck
 
 # Creates user (with password and joins it in wheel group)
-adduserandpass || error "User and password creation aborted."
+adduserandpass
 
 # Installing very Important packages Ipkgs=(curl git ntp base-devel)
  for x in ${Ipkgs[@]}; do
@@ -243,3 +233,5 @@ finalize
 #	pacman -Si "$program" | head -4 >> testic
 #	echo "" >> testic
 
+#packages=(xorg-server xorg-xinit xorg-xrandr noto-fonts ttf-linux-libertine ttf-font-awesome xf86-video-intel libxft libxinerama git feh ffmpeg sxiv xwallpaper xcompmgr firefox mpd ncmpcpp mpc)
+#packages=(lf pass)
