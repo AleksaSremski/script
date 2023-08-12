@@ -55,7 +55,7 @@ preinstallmsg() {
 # Ask if you want to proceed with installation or exit
 	whiptail --title "Lets get started!" --yes-button "Yes, I agree." \
 		--no-button "No, exit script." \
-		--yesno "From this point whole script is goint to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 15 70 || {
+		--yesno "From this point on whole script is going to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 15 70 || {
 		clear
 		exit 1
 	}
@@ -151,7 +151,7 @@ deploydotfiles() {
 	--infobox "Deploying my configurational files." 15 70
 	cd "/tmp"
 	git clone "$1" >/dev/null 2>&1
-	cp -r dotfiles/.config/* /home/"$username"/.config/ && rm -rf dotfiles/.config/
+	cp -r dotfiles/.config/* /home/"$username"/.config/ && rm -rf "dotfiles/.config/" "LICENSE" ".git"
 	cp dotfiles/* /home/"$username"/ && chown -R "$username":wheel /home/"$username"/*
 }
 
