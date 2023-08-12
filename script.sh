@@ -153,6 +153,8 @@ deploydotfiles() {
 	git clone "$1" >/dev/null 2>&1
 	cp -r dotfiles/.config/* /home/"$username"/.config/ && rm -rf "dotfiles/.config/" "LICENSE" ".git"
 	cp -r dotfiles/.xprofile /home/"$username"/ && chown -R "$username":wheel /home/"$username"/.config /home/"$username"/.xprofile
+	cp -r /home/"$username"/.xprofile/.xinitrc /home/"$username"/
+	cp -r /home/"$username"/.config/bash/.bashrc /home/"$username"/
 }
 
 finalize() {
