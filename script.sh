@@ -17,6 +17,7 @@ removepackage() {
 
 error() {
 	whiptail --title "Error!" --msgbox "$1" 15 60
+	clear
 	exit 1
 }
 
@@ -40,14 +41,16 @@ welcomemsg() {
 		--no-button "Return..." \
 		--yesno "This is script for installing my desktop enviroment 'DE' with my configurational files.\nIt's basically copy of Luke Smiths build of 'DE' with my personal configuration files.\n\n-Aleksa" 15 60 || {
 		clear
-		exit 1
+		#exit 1
+		error "User exited"
 	}
 
 	whiptail --title "Important Note!" --yes-button "All ready!" \
 		--no-button "Return..." \
 		--yesno "Be sure the computer you are using has current pacman updates and refreshed Arch keyrings.\\n\\nIf it does not, the installation of some programs might fail." 8 70 || {
 		clear
-		exit 1
+		#exit 1
+		error "User exited"
 	}
  }
 
@@ -57,7 +60,8 @@ preinstallmsg() {
 		--no-button "No, exit script." \
 		--yesno "From this point on whole script is going to be automated, so if you want to exit now is the time.\nIf you want to continue script will create new user and install my 'DE'." 15 70 || {
 		clear
-		exit 1
+		#exit 1
+		error "User exited"
 	}
 }
 
