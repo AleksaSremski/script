@@ -159,6 +159,8 @@ deploydotfiles() {
 	cp -r dotfiles/.xprofile /home/"$username"/ && chown -R "$username":wheel /home/"$username"/.config /home/"$username"/.xprofile
 	cp -r /home/"$username"/.xprofile/.xinitrc /home/"$username"/
 	cp -r /home/"$username"/.config/bash/.bashrc /home/"$username"/
+	cp -r /home/"$username"/.config/bash/.bash_profile /home/"$username"/
+	cp -r /home/"$username"/.config/.vimrc /home/"$username"/
 }
 
 finalize() {
